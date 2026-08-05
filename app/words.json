@@ -1,0 +1,44 @@
+{
+  "happy_words": [
+    "love",
+    "hope",
+    "success",
+    "positive",
+    "wonderful",
+    "great",
+    "excellent",
+    "cheerful",
+    "joy",
+    "happy"
+  ],
+  "sad_words": [
+    "sad",
+    "gloomy",
+    "frustrated",
+    "disappointed",
+    "bad",
+    "terrible",
+    "awful",
+    "ugly",
+    "pain",
+    "hurt",
+    "loss"
+  ],
+  "neutral_words": [
+    "today",
+    "work",
+    "going",
+    "weather",
+    "book",
+    "time",
+    "day",
+    "place",
+    "thing",
+    "think",
+    "see",
+    "know",
+    "is",
+    "the",
+    "and"
+  ]
+}
