@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Web - Register</title>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Create Account</h1>
+            <p style="text-align:center; color:var(--text-light); font-size:1rem;">Start tracking your happiness.</p>
+            
+            <div class="error-msg" id="register-error"></div>
+
+            <form id="register-form">
+                <div class="input-group">
+                    <label>Name</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" required>
+                        <span class="toggle-icon" onclick="togglePassword('password', this)">👁️</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Confirm Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="confirm_password" required>
+                        <span class="toggle-icon" onclick="togglePassword('confirm_password', this)">👁️</span>
+                    </div>
+                </div>
+                <br>
+                <button type="submit" style="width: 100%;">Sign Up</button>
+            </form>
+
+            <div class="link-text">
+                Already have an account? <a href="login.html">Log In</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../static/app.js"></script>
+    <script>
+        function togglePassword(inputId, iconElement) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                iconElement.innerText = "🙈";
+            } else {
+                input.type = "password";
+                iconElement.innerText = "👁️";
+            }
+        }
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideError('register-error');
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+
+            if (password !== confirmPassword) {
+                showError('register-error', "Passwords do not match");
+                return;
+            }
+
+            try {
+                await fetchApi('/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ name, email, password })
+                });
+                
+                window.location.href = 'login.html';
+            } catch (err) {
+                showError('register-error', err.message);
+            }
+        });
+    </script>
+</body>
+</html>

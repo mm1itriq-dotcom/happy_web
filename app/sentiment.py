@@ -48,24 +48,24 @@ def analyze_text(text: str) -> dict:
         elif cat == "neutral":
             neutral_count += 1
 
-    total_matched_words = happy_count + sad_count + neutral_count
+    emotional_total = happy_count + sad_count
 
-    if total_matched_words == 0:
+    if emotional_total == 0:
         happy_percentage = 0.0
         sad_percentage = 0.0
         neutral_percentage = 100.0
         user_state = "Neutral"
     else:
-        happy_percentage = round((happy_count / total_matched_words) * 100, 1)
-        sad_percentage = round((sad_count / total_matched_words) * 100, 1)
-        neutral_percentage = round((neutral_count / total_matched_words) * 100, 1)
+        happy_percentage = round((happy_count / emotional_total) * 100, 1)
+        sad_percentage = round((sad_count / emotional_total) * 100, 1)
+        neutral_percentage = 0.0
 
-        if happy_percentage > sad_percentage and happy_percentage > neutral_percentage:
+        if happy_percentage > sad_percentage:
             user_state = "Happy"
-        elif sad_percentage > happy_percentage and sad_percentage > neutral_percentage:
+        elif sad_percentage > happy_percentage:
             user_state = "Sad"
         else:
-            user_state = "Neutral"
+            user_state = "Mixed"
 
     return {
         "happy_percentage": happy_percentage,

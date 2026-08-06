@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Web - Dashboard</title>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <div class="container dashboard-container">
+        <div style="text-align: right; margin-bottom: 1rem; color: var(--text-light); font-weight: 600; font-size: 0.9rem;" id="welcome-message"></div>
+        <nav>
+            <a href="analyze.html" class="active">Analyze</a>
+            <a href="history.html">History</a>
+            <a href="profile.html">Profile</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </nav>
+
+        <div class="card">
+            <h2>How are you feeling today?</h2>
+            
+            <div class="error-msg" id="analyze-error"></div>
+
+            <form id="analyze-form">
+                <textarea id="text-input" placeholder="Type your thoughts here..."></textarea>
+                <br><br>
+                <button type="submit" style="width: 100%;">Analyze Sentiment</button>
+            </form>
+
+            <div id="results-area" style="display: none; margin-top: 1rem;">
+                <h3 style="margin-bottom: 1rem;">Analysis Result</h3>
+                
+                <div class="chart-container">
+                    <div class="bar-wrapper">
+                        <label>Happy (<span id="pct-happy">0</span>%)</label>
+                        <div class="bar-bg">
+                            <div class="bar-fill fill-happy" id="bar-happy"></div>
+                        </div>
+                    </div>
+                    <div class="bar-wrapper">
+                        <label>Neutral (<span id="pct-neutral">0</span>%)</label>
+                        <div class="bar-bg">
+                            <div class="bar-fill fill-neutral" id="bar-neutral"></div>
+                        </div>
+                    </div>
+                    <div class="bar-wrapper">
+                        <label>Sad (<span id="pct-sad">0</span>%)</label>
+                        <div class="bar-bg">
+                            <div class="bar-fill fill-sad" id="bar-sad"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 1.5rem; color: var(--primary-color);" id="overall-mood"></h3>
+            </div>
+        </div>
+    </div>
+
+    <script src="../static/app.js"></script>
+    <script>
+        checkAuth();
+
+        const userName = localStorage.getItem('happy_name');
+        if (userName) {
+            document.getElementById('welcome-message').innerText = `Welcome, ${userName}!`;
+        }
+
+        const textInput = document.getElementById('text-input');
+        
+        // Restore any unsaved text draft
+        const savedDraft = localStorage.getItem('happy_draft_text');
+        if (savedDraft) {
+            textInput.value = savedDraft;
+        }
+
+        // Save text as they type so it survives page navigations
+        textInput.addEventListener('input', (e) => {
+            localStorage.setItem('happy_draft_text', e.target.value);
+        });
+
+        document.getElementById('analyze-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideError('analyze-error');
+            
+            const text = document.getElementById('text-input').value;
+            if(!text.trim()) return;
+
+            try {
+                const data = await fetchApi('/analyze', {
+                    method: 'POST',
+                    body: JSON.stringify({ text })
+                });
+                
+                // Clear the draft from storage since it was successfully submitted
+                localStorage.removeItem('happy_draft_text');
+
+                document.getElementById('results-area').style.display = 'block';
+                
+                // Animate bars
+                setTimeout(() => {
+                    document.getElementById('bar-happy').style.width = `${data.happy_percentage}%`;
+                    document.getElementById('bar-neutral').style.width = `${data.neutral_percentage}%`;
+                    document.getElementById('bar-sad').style.width = `${data.sad_percentage}%`;
+                }, 100);
+
+                document.getElementById('pct-happy').innerText = data.happy_percentage.toFixed(1);
+                document.getElementById('pct-neutral').innerText = data.neutral_percentage.toFixed(1);
+                document.getElementById('pct-sad').innerText = data.sad_percentage.toFixed(1);
+
+                document.getElementById('overall-mood').innerText = `You are mostly ${data.user_state}!`;
+
+            } catch (err) {
+                showError('analyze-error', err.message);
+            }
+        });
+    </script>
+</body>
+</html>

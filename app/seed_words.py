@@ -9,7 +9,7 @@ def seed_words():
     with open(json_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    categories = {
+    categories = {  
         "happy": data.get("happy_words", []),
         "sad": data.get("sad_words", []),
         "neutral": data.get("neutral_words", []),

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Web - Login</title>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Login</h1>
+            <p style="text-align:center; color:var(--text-light); font-size:1rem;">Log in to track your joy.</p>
+            
+            <div class="error-msg" id="login-error"></div>
+
+            <form id="login-form">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" required>
+                        <span class="toggle-icon" onclick="togglePassword('password', this)">👁️</span>
+                    </div>
+                </div>
+                <br>
+                <button type="submit" style="width: 100%;">Log In</button>
+            </form>
+
+            <div class="link-text">
+                Don't have an account? <a href="register.html">Sign Up</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../static/app.js"></script>
+    <script>
+        function togglePassword(inputId, iconElement) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                iconElement.innerText = "🙈";
+            } else {
+                input.type = "password";
+                iconElement.innerText = "👁️";
+            }
+        }
+
+        // If already logged in, go to analyze
+        if(localStorage.getItem('happy_token')) {
+            window.location.href = 'analyze.html';
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideError('login-error');
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const data = await fetchApi('/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+                
+                setAuth(data.token, data.name);
+                window.location.href = 'analyze.html';
+            } catch (err) {
+                showError('login-error', err.message);
+            }
+        });
+    </script>
+</body>
+</html>

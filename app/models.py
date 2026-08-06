@@ -1,3 +1,4 @@
+import uuid
 from sqlalchemy import (
     MetaData,
     Table,
@@ -17,7 +18,7 @@ metadata = MetaData()
 users = Table(
     "users",
     metadata,
-    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("id", String(36), primary_key=True, default=lambda: str(uuid.uuid4())),
     Column("name", String(100), nullable=False),
     Column("email", String(120), nullable=False, unique=True),
     Column("password_hash", String(255), nullable=False),
@@ -28,8 +29,8 @@ users = Table(
 sentiments = Table(
     "sentiments",
     metadata,
-    Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("user_id", Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
+    Column("id", String(36), primary_key=True, default=lambda: str(uuid.uuid4())),
+    Column("user_id", String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
     Column("input_text", Text, nullable=False),
     Column("sentiment_label", String(50), nullable=False),
     Column("happy_percentage", Float, nullable=False),

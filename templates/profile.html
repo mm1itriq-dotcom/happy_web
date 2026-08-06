@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Web - Profile</title>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <div class="container dashboard-container">
+        <nav>
+            <a href="analyze.html">Analyze</a>
+            <a href="history.html">History</a>
+            <a href="profile.html" class="active">Profile</a>
+            <a href="#" onclick="logout()">Logout</a>
+        </nav>
+
+        <div class="card">
+            <div class="profile-header">
+                <div class="avatar" id="avatar-initial">?</div>
+                <h2 id="profile-name">Loading...</h2>
+            </div>
+            
+            <div class="error-msg" id="profile-error"></div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-total">-</div>
+                    <div class="stat-label">Total Entries</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="stat-mood">-</div>
+                    <div class="stat-label">Overall Mood</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../static/app.js"></script>
+    <script>
+        checkAuth();
+
+        const name = localStorage.getItem('happy_name') || 'User';
+        document.getElementById('profile-name').innerText = name;
+        document.getElementById('avatar-initial').innerText = name.charAt(0).toUpperCase();
+
+        async function loadStats() {
+            try {
+                const data = await fetchApi('/history');
+                const history = data.history;
+                
+                document.getElementById('stat-total').innerText = history.length;
+
+                if (history.length === 0) {
+                    document.getElementById('stat-mood').innerText = 'N/A';
+                    return;
+                }
+
+                // Calculate most frequent mood
+                const counts = { happy: 0, sad: 0, neutral: 0, mixed: 0 };
+                history.forEach(item => {
+                    const mood = item.sentiment_label.toLowerCase();
+                    if(counts[mood] !== undefined) {
+                        counts[mood]++;
+                    }
+                });
+
+                let maxMood = 'neutral';
+                let maxCount = 0;
+                for (const [mood, count] of Object.entries(counts)) {
+                    if (count > maxCount) {
+                        maxCount = count;
+                        maxMood = mood;
+                    }
+                }
+
+                document.getElementById('stat-mood').innerText = maxMood.charAt(0).toUpperCase() + maxMood.slice(1);
+            } catch (err) {
+                showError('profile-error', err.message);
+            }
+        }
+
+        loadStats();
+    </script>
+</body>
+</html>
